@@ -1,0 +1,10 @@
+{ 
+  "dev": {
+    "dbConfig": {
+      "host": "node-guide-gnpw9.mongodb.net",      
+      "dbName": "shopMongoose",
+      "login": "pavel",
+      "password": "12081988"
+    }
+  }
+}
