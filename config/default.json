@@ -2,7 +2,7 @@
   "dev": {
     "dbConfig": {
       "host": "node-guide-gnpw9.mongodb.net",      
-      "dbName": "shopMongoose",
+      "dbName": "shopGraphql",
       "login": "pavel",
       "password": "12081988"
     }
