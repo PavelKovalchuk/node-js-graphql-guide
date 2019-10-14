@@ -125,27 +125,56 @@ class Feed extends Component {
     formData.append('title', postData.title);
     formData.append('content', postData.content);
     formData.append('image', postData.image);
-    let url = API_BASE_NAME + 'feed/post';
-    let method = "POST";
-    if (this.state.editPost) {
-      url = API_BASE_NAME + 'feed/post/' + this.state.editPost._id;
-      method = "PUT";
-    }
+    const url = API_BASE_NAME + 'graphql';
+
+    let graphqlQuery = {
+      query: `
+        mutation {
+          createPost(postInput: {
+            title: "${postData.title}", 
+            content: "${postData.content}",
+            imageUrl: "some url"
+          }) {
+            _id
+            title
+            content
+            imageUrl
+            creator {
+              name
+            }
+            createdAt
+          }
+        }
+      `
+    };
 
     fetch(url, {
-      method: method,     
-      body: formData,
+      method: "POST",
+      body: JSON.stringify(graphqlQuery),
       headers: {
-        Authorization: "Bearer " + this.props.token,
-      },
+        Authorization: 'Bearer ' + this.props.token,
+        'Content-Type': 'application/json'
+      }
     })
       .then(res => {
-        if (res.status !== 200 && res.status !== 201) {
-          throw new Error('Creating or editing a post failed!');   
-        }
         return res.json();
       })
-      .then(resData => {      
+      .then(resData => {
+        if (resData.errors && resData.errors[0].status === 422) {
+          throw new Error(
+            "Validation failed. Make sure the email address isn't used yet!"
+          );
+        }
+        if (resData.errors) {
+          throw new Error('User login failed!');
+        }
+        const post = {
+          _id: resData.data.createPost._id,
+          title: resData.data.createPost.title,
+          content: resData.data.createPost.content,
+          creator: resData.data.createPost.creator,
+          createdAt: resData.data.createPost.createdAt
+        };
         this.setState(prevState => {         
           return {            
             isEditing: false,
